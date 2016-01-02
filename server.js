@@ -1,19 +1,26 @@
-var http = require('http');
-var url = require('url');
-var port = process.env.PORT || 8080;
-var express = require('express');
+'use strict';
 
-var app = express();
-app.get('/:query', function (req, res) {
-var parsedUrl = req.params.query;  
-	//parsed URL contains whats in the url passed /
-	res.send(parsedUrl);
-})
-app.get('/', function(req, res){
-	//
-	res.writeHead(200, {'Content-Type': 'text/plain'});
-	res.end('Enter date in UNIX or TIME format in URL to return json');
-})
+// call the packages we need
+var express    = require('express');        // call express
+var app        = express();                 // define our app using express
+var bodyParser = require('body-parser');
+var routes = require('./app/routes/index.js');
+var api = require('./app/api/time.js');
+
+// configure app to use bodyParser()
+// this will let us get the data from a POST
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use('/public', express.static(process.cwd() + '/public'));
+    
+var port = process.env.PORT || 8080;        // set our port
+    
+// The format follows as, alias to use for real path, also allows permission to such path.
+//app.use('/api', express.static(process.cwd() + '/app/api'));
+    
+routes(app);
+api(app);
+
 app.listen(port, function() {
-console.log('listening on port ' + port)
+    console.log('Node.js listening on port ' + port);
 });
